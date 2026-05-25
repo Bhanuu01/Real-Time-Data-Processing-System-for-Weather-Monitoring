@@ -1,105 +1,76 @@
-<h1 align="center">🌤️ ClimaCast</h1>
-<h3 align="center">Real-Time Weather Monitoring & Alert System</h3>
+# ClimaCast Weather Monitoring System
 
-<p align="center">
-  <b>Track, Analyze, and Alert - All in Real-Time</b><br>
-  <i>Built with Django · Celery · Redis · PostgreSQL</i>
-</p>
+This repository contains a Django-based weather monitoring application with scheduled data collection, daily summaries, and alerting.
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Python-3.9+-blue?logo=python" />
-  <img src="https://img.shields.io/badge/Django-4.x-green?logo=django" />
-  <img src="https://img.shields.io/badge/Celery-TaskQueue-brightgreen" />
-  <img src="https://img.shields.io/badge/Redis-Broker-red?logo=redis" />
-</p>
+The project was built around a simple but useful systems question: how do you keep a small application updating external data reliably, summarize it on a schedule, and surface alerts when thresholds are crossed?
 
----
+## What this repo includes
 
-## 📌 Overview
+- a Django web application
+- Celery workers for scheduled background jobs
+- Redis as the task broker
+- PostgreSQL-backed application data
+- dashboard views for recent weather information and summaries
+- temperature-threshold alerts
 
-ClimaCast is a full-stack application that collects real-time weather data, summarizes daily conditions, and sends temperature alerts using scheduled background tasks.
+## Main workflow
 
-It includes:
-- Real-time dashboard to visualize temperature data
-- Scheduled tasks using Celery for periodic data updates
-- Temperature scale switching (Celsius / Fahrenheit)
+- fetch weather data for configured cities on a schedule
+- store the incoming values
+- generate daily summaries
+- check for alert conditions such as high temperature
+- render the results in the dashboard
 
-## Installation (WSL - Ubuntu)
+## Stack
 
-1. **Clone the repository:**
+- Django
+- Celery
+- Redis
+- PostgreSQL
+- Python
 
-    ```bash
-    git clone https://github.com/Bhanuu01/Real-Time-Data-Processing-System-for-Weather-Monitoring.git
-    cd Real-Time-Data-Processing-System-for-Weather-Monitoring/weather_monitoring
-    ```
+## Running locally
 
-2. **Install the required packages:**
+Install dependencies:
 
-    ```bash
-    pip install -r requirements.txt
-    ```
+```bash
+pip install -r requirements.txt
+```
 
-## Running the Application (WSL - Ubuntu):
+Apply migrations:
 
-1. **Apply database migrations:**
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
 
-    ```bash
-    python manage.py makemigrations
-    python manage.py migrate
-    ```
+Start the Django server:
 
-2. **Start Django Development Server:**
+```bash
+python manage.py runserver
+```
 
-    ```bash
-    python manage.py runserver
-    ```
+Start Redis, then run Celery in separate terminals:
 
-3. **Install Redis:**
+```bash
+celery -A weather_monitoring worker --loglevel=info
+celery -A weather_monitoring beat --loglevel=info
+```
 
-    ```bash
-    sudo apt update
-    sudo apt install redis-server
-    ```
+Populate default cities if needed:
 
-    **Start the Redis service:**
+```bash
+python manage.py populate_cities
+```
 
-    ```bash
-    sudo systemctl start redis-server
-    ```
+## Dashboard
 
-4. **Start Celery Worker:** Open a new terminal window, navigate to your project directory, and run:
+Once the app is running, open:
 
-    ```bash
-    celery -A weather_monitoring worker --loglevel=info
-    ```
+- `http://127.0.0.1:8000/dashboard/`
 
-5. **Start Celery Beat:** In another terminal window, run:
+The dashboard includes temperature views and supports switching between Celsius and Fahrenheit.
 
-    ```bash
-    celery -A weather_monitoring beat --loglevel=info
-    ```
+## Why this repo matters
 
-6. Add default cities to database
-   
-   ```bash
-    python manage.py populate_cities
-    ```
-
-
-## Usage
-
-**Running Tasks:**
-
-- **Fetch Weather Data:** Runs every 5 minutes to fetch weather data for all cities.
-- **Calculate Daily Summary:** Runs daily at midnight to calculate and store the daily weather summary.
-- **Check Alerts:** Runs every 10 minutes to check if any city's temperature exceeds 35°C.
-
-## Accessing the Dashboard
-
-Open a web browser and navigate to [http://127.0.0.1:8000/dashboard/](http://127.0.0.1:8000/dashboard/) to view the weather dashboard.
-Temaparature scale feature allows users to select their preferred temperature scale, as illustrated in the figure below. It then provides temperatures based on the user's selection.
-
-![image](https://github.com/user-attachments/assets/2a9abad8-fee3-43d0-a946-a5f4b0a59347)
-
-![image](https://github.com/user-attachments/assets/343965bd-1790-475e-b911-a0c4d70d5c97)
-
+This is a smaller project, but it shows the kind of backend habits I cared about early on: scheduled jobs, background processing, stateful application data, and alert-driven behavior instead of a static page.
